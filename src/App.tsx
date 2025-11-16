@@ -1,8 +1,8 @@
-import ThreeScene from './components/ThreeScene'
+import LandingPage from './pages/LandingPage'
 import './App.css'
 
 function App() {
-  return <ThreeScene />
+  return <LandingPage />
 }
 
 export default App
