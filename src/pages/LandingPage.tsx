@@ -1,18 +1,21 @@
-import Hero from '../components/Hero'
+import HeroNew from '../components/HeroNew'
+import SolutionSection from '../components/SolutionSection'
+import DataSection from '../components/DataSection'
+import ProductGrid from '../components/ProductGrid'
+import PartnersSection from '../components/PartnersSection'
+import Footer from '../components/Footer'
+import PollutionSection from '../components/PollutionSection'
 
 const LandingPage = () => {
   return (
-    <div style={{ 
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw', 
-      height: '100vh', 
-      overflow: 'hidden', 
-      margin: 0, 
-      padding: 0 
-    }}>
-      <Hero />
+    <div className="landing-page">
+      <HeroNew />
+      <PollutionSection />
+      <SolutionSection />
+      <DataSection />
+      <ProductGrid />
+      <PartnersSection />
+      <Footer />
     </div>
   )
 }
