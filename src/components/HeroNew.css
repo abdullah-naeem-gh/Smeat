@@ -8,10 +8,7 @@
   height: 100vh;
   overflow: hidden;
   font-family: 'Montserrat', sans-serif;
-  background-image: url('../assets/hero_bg.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: transparent;
 }
 
 /* Subtle top-right light flare overlay (matches design atmosphere) */
