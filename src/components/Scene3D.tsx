@@ -14,9 +14,8 @@ const Particles = ({ targetRef }: { targetRef: React.RefObject<THREE.Group | nul
   
   // Create particles with random positions
   // We want them to form a cloud initially around the left side (pollution source)
-  const [positions, initialPositions] = useMemo(() => {
+  const [positions] = useMemo(() => {
     const pos = new Float32Array(count * 3)
-    const initPos = new Float32Array(count * 3)
     
     for (let i = 0; i < count; i++) {
       // Cloud spread
@@ -27,12 +26,8 @@ const Particles = ({ targetRef }: { targetRef: React.RefObject<THREE.Group | nul
       pos[i * 3] = x
       pos[i * 3 + 1] = y
       pos[i * 3 + 2] = z
-
-      initPos[i * 3] = x
-      initPos[i * 3 + 1] = y
-      initPos[i * 3 + 2] = z
     }
-    return [pos, initPos]
+    return [pos]
   }, [])
   
   useFrame(() => {
@@ -65,8 +60,6 @@ const Particles = ({ targetRef }: { targetRef: React.RefObject<THREE.Group | nul
         } else {
             // Respawn relative to target to create a continuous stream or cycle
             // Or just respawn at random 'screen' position to simulate new pollution coming in
-            const rndX = (Math.random() - 0.5) * 15
-            const rndY = (Math.random() - 0.5) * 10
             
             // Bias respawn to the direction model is moving away from? 
             // Keep it simple: respawn around the current target but with offset

@@ -1,7 +1,6 @@
 import { useRef } from 'react'
 import { Zap, Cpu, Leaf } from 'lucide-react'
 import { motion } from 'framer-motion'
-import classNames from 'classnames'
 
 const SolutionSection = () => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -16,7 +15,7 @@ const SolutionSection = () => {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
               The SMEAT Solution
             </h2>
-            <div className="w-20 h-1.5 bg-[#288760] rounded-full" />
+            <div className="w-20 h-1.5 bg-forest rounded-full" />
           </div>
 
           <div className="space-y-8">
