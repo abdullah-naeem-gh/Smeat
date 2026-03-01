@@ -1,54 +1,127 @@
-import './HeroNew.css'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import logoImg from '../assets/Logo.png'
+
+const NAV_ITEMS = ['Technology', 'Applications', 'Research', 'About', 'Contact']
 
 function HeroNew() {
+  const [hoverPrimary, setHoverPrimary] = useState(false)
+  const [hoverSecondary, setHoverSecondary] = useState(false)
+  const [hoveredNavIndex, setHoveredNavIndex] = useState<number | null>(null)
+
   return (
-    <div id="hero-section" className="relative w-full h-screen overflow-hidden bg-transparent">
-      {/* Content Container - heavily simplified */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center px-12 md:px-24 pointer-events-none">
-        
-        {/* Main Text Content */}
-        <div className="max-w-4xl space-y-8 pointer-events-auto">
-          <div className="inline-block relative">
-            <h1 className="text-7xl md:text-8xl font-black tracking-tighter text-gray-900 leading-none mb-2">
-              CONCRETE
-            </h1>
-            <div className="h-2 w-full bg-forest absolute bottom-2 left-0 -z-10 origin-left transform scale-x-100 transition-transform duration-1000 ease-out"></div>
-          </div>
-          
-          <h2 className="text-5xl md:text-6xl font-light text-gray-800 tracking-tight">
-            THAT BREATHES
-          </h2>
-          
-          <p className="text-xl md:text-2xl text-gray-600 max-w-xl font-light leading-relaxed mt-6 border-l-4 border-[#288760] pl-6">
-            Transforming urban pollution into clean air with revolutionary bio-concrete technology.
+    <div
+      id="hero-section"
+      className="relative w-full h-screen bg-transparent overflow-hidden"
+      style={{ fontFamily: 'Manrope, sans-serif' }}
+    >
+      {/* ── Navbar ── */}
+      <nav className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-10 py-6 pointer-events-auto">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img src={logoImg} alt="SMEAT" className="h-7 w-auto object-contain" />
+        </div>
+
+        {/* Nav links — scale-X sweep hover */}
+        <ul className="hidden md:flex items-center gap-10">
+          {NAV_ITEMS.map((item, index) => (
+            <li key={item}>
+              <a
+                href="#"
+                className="relative overflow-hidden rounded-full py-1.5 px-4 block text-[15px] font-normal"
+                style={{ letterSpacing: '0.01em' }}
+                onMouseEnter={() => setHoveredNavIndex(index)}
+                onMouseLeave={() => setHoveredNavIndex(null)}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-[#1a1a2e] rounded-full"
+                  style={{ transformOrigin: 'left center' }}
+                  animate={{ scaleX: hoveredNavIndex === index ? 1 : 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                />
+                <motion.span
+                  className="relative z-10 block"
+                  animate={{
+                    color: hoveredNavIndex === index ? '#ffffff' : 'rgb(75 85 99)'
+                  }}
+                  transition={{ duration: 0.2, delay: hoveredNavIndex === index ? 0.1 : 0 }}
+                >
+                  {item}
+                </motion.span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* ── Left content ── */}
+      <div className="absolute inset-0 z-30 flex flex-col justify-center px-10 md:px-16 lg:px-20 pointer-events-none">
+        <div className="max-w-[520px] pointer-events-auto">
+          {/* Main heading */}
+          <h1
+            className="font-semibold text-[#1a1a1a] leading-[1.1] tracking-[-0.025em] mb-5"
+            style={{ fontSize: 'clamp(38px, 5.5vw, 72px)' }}
+          >
+            Concrete that<br />cleans the air.
+          </h1>
+
+          {/* Description */}
+          <p
+            className="text-gray-500 font-normal leading-relaxed mb-10"
+            style={{ fontSize: 'clamp(14px, 1.15vw, 17px)', maxWidth: '420px' }}
+          >
+            SMEAT develops smog-eating concrete and coatings
+            that actively remove air pollutants, enabling cities
+            to build cleaner infrastructure.
           </p>
 
-          <div className="flex gap-6 pt-8">
-            <button className="px-8 py-4 bg-forest text-white text-lg font-medium rounded-sm hover:bg-[#1f6b4c] transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-              Explore Solution
-            </button>
-            <button className="px-8 py-4 border-2 border-gray-900 text-gray-900 text-lg font-medium rounded-sm hover:bg-gray-900 hover:text-white transition-colors duration-300">
-              Watch Demo
-            </button>
+          {/* CTA buttons — scale-X sweep hover (state-driven so hover always works) */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <motion.button
+              type="button"
+              className="relative overflow-hidden rounded-lg px-7 py-3 bg-[#1a1a2e] font-medium"
+              style={{ fontSize: '15px', letterSpacing: '0.01em' }}
+              onMouseEnter={() => setHoverPrimary(true)}
+              onMouseLeave={() => setHoverPrimary(false)}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white rounded-lg"
+                style={{ transformOrigin: 'left center' }}
+                animate={{ scaleX: hoverPrimary ? 1 : 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              />
+              <motion.span
+                className="relative z-10 block"
+                animate={{ color: hoverPrimary ? '#000000' : '#ffffff' }}
+                transition={{ duration: 0.2, delay: hoverPrimary ? 0.1 : 0 }}
+              >
+                Explore Technology
+              </motion.span>
+            </motion.button>
+            <motion.button
+              type="button"
+              className="relative overflow-hidden rounded-lg px-7 py-3 font-medium"
+              style={{ fontSize: '15px', letterSpacing: '0.01em', background: 'transparent', border: '1px solid #1a1a2e' }}
+              onMouseEnter={() => setHoverSecondary(true)}
+              onMouseLeave={() => setHoverSecondary(false)}
+            >
+              <motion.div
+                className="absolute inset-0 bg-[#1a1a2e] rounded-lg -inset-px"
+                style={{ transformOrigin: 'left center' }}
+                animate={{ scaleX: hoverSecondary ? 1 : 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              />
+              <motion.span
+                className="relative z-10 block"
+                animate={{ color: hoverSecondary ? '#ffffff' : '#1a1a2e' }}
+                transition={{ duration: 0.2, delay: hoverSecondary ? 0.1 : 0 }}
+              >
+                View Research
+              </motion.span>
+            </motion.button>
           </div>
         </div>
-
-        {/* Floating Stats/Badges */}
-        <div className="absolute bottom-12 right-12 flex gap-8">
-          <div className="bg-white/90 backdrop-blur-md p-6 rounded-lg shadow-xl border-l-4 border-forest">
-            <div className="text-4xl font-bold text-gray-900">30%</div>
-            <div className="text-sm font-medium text-gray-600 uppercase tracking-wider mt-1">CO₂ Reduction</div>
-          </div>
-          <div className="bg-white/90 backdrop-blur-md p-6 rounded-lg shadow-xl border-l-4 border-forest">
-            <div className="text-4xl font-bold text-gray-900">100+</div>
-            <div className="text-sm font-medium text-gray-600 uppercase tracking-wider mt-1">Years Durability</div>
-          </div>
-        </div>
-
       </div>
-
-      {/* Background Gradient Overlay to ensure text readability */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white/20 to-transparent pointer-events-none"></div>
     </div>
   )
 }

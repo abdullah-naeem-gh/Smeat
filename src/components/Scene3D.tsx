@@ -1,5 +1,5 @@
-import { useEffect, useRef, useMemo } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
@@ -7,104 +7,19 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// --- Particles Component ---
-const Particles = ({ targetRef }: { targetRef: React.RefObject<THREE.Group | null> }) => {
-  const count = 3000
-  const meshRef = useRef<THREE.Points>(null)
-  
-  // Create particles with random positions
-  // We want them to form a cloud initially around the left side (pollution source)
-  const [positions] = useMemo(() => {
-    const pos = new Float32Array(count * 3)
-    
-    for (let i = 0; i < count; i++) {
-      // Cloud spread
-      const x = (Math.random() - 0.5) * 15 - 5 // Start more to the left
-      const y = (Math.random() - 0.5) * 10
-      const z = (Math.random() - 0.5) * 5
-      
-      pos[i * 3] = x
-      pos[i * 3 + 1] = y
-      pos[i * 3 + 2] = z
-    }
-    return [pos]
-  }, [])
-  
-  useFrame(() => {
-    if (!meshRef.current || !targetRef.current) return
-    
-    // Get target position (center of model)
-    const targetPos = new THREE.Vector3()
-    targetRef.current.getWorldPosition(targetPos)
-    
-    const positionsAttribute = meshRef.current.geometry.attributes.position
-    
-    for (let i = 0; i < count; i++) {
-        let x = positionsAttribute.getX(i)
-        let y = positionsAttribute.getY(i)
-        let z = positionsAttribute.getZ(i)
-
-        // Calculate vector to target
-        const dx = targetPos.x - x
-        const dy = targetPos.y - y
-        const dz = targetPos.z - z
-        
-        const distSq = dx*dx + dy*dy + dz*dz
-
-        if (distSq > 0.05) {
-            // Stronger attraction force + some randomness for "cloud" effect
-            // Lerp towards target to avoid lagging behind too much
-            x += dx * 0.08  // Increased speed significantly
-            y += dy * 0.08 
-            z += dz * 0.08 
-        } else {
-            // Respawn relative to target to create a continuous stream or cycle
-            // Or just respawn at random 'screen' position to simulate new pollution coming in
-            
-            // Bias respawn to the direction model is moving away from? 
-            // Keep it simple: respawn around the current target but with offset
-             x = targetPos.x + (Math.random() - 0.5) * 10
-             y = targetPos.y + (Math.random() - 0.5) * 8
-             z = targetPos.z + (Math.random() - 0.5) * 5
-        }
-
-        positionsAttribute.setXYZ(i, x, y, z)
-    }
-    
-    positionsAttribute.needsUpdate = true
-  })
-
-
-  return (
-    <points ref={meshRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-          args={[positions, 3]}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.05}
-        color="#333"
-        transparent
-        opacity={0} 
-        sizeAttenuation
-        depthWrite={false}
-      />
-    </points>
-  )
-}
+// Stroke band in viewport: left 18vw, width 64vw (18–82vw) — must match PollutionSection
+const STROKE_START_VW = 18
+const STROKE_WIDTH_VW = 64
+// Model vertical offset in pollution section (higher = further up on screen)
+const POLLUTION_MODEL_Y = 0.8
 
 // --- Model Component ---
 const ModelAndScene = () => {
     const { scene } = useGLTF('/concrete.glb')
     const modelRef = useRef<THREE.Group>(null)
-    const particlesRef = useRef<THREE.Group>(null) 
-    const particleTargetRef = useRef<THREE.Group>(null)
-  
+    const { camera } = useThree()
+    const projected = useRef(new THREE.Vector3())
+
     useEffect(() => {
       // Create a context for GSAP to easily revert all animations
       // Removed scope (modelRef) because we need to target DOM elements outside the canvas (#smoke-bg etc)
@@ -144,11 +59,11 @@ const ModelAndScene = () => {
                 }
               })
               
-              // Move model to the Left side for Pollution section
+              // Move model to the Left side for Pollution section (and up a bit)
               // Use fromTo to ensure we always start from the hero position when reversing back up
               tlHeroToPollution.fromTo(modelRef.current!.position, 
                 { x: 3, y: 0, z: 0 }, 
-                { x: -6, y: 0, z: 0, ease: "none" }
+                { x: -6, y: POLLUTION_MODEL_Y, z: 0, ease: "none" }
               )
               // Rotate it to look interesting
               .fromTo(modelRef.current!.rotation,
@@ -169,27 +84,43 @@ const ModelAndScene = () => {
 
 
               // --- 2. While IN Pollution Section (Pinning) ---
-              // This handles the transition from Smoke to Clean
+              // Stroke is driven by model's *projected screen position*, not timeline progress (perspective makes progress ≠ screen position).
               const tlPollution = gsap.timeline({
                 scrollTrigger: {
                     trigger: "#pollution-section",
                     start: "center center",
                     end: "+=2000",
                     pin: true,
-                    scrub: 0.5, // Reduced scrub
-                    immediateRender: false 
-                }
+                    scrub: 0.5,
+                    immediateRender: false,
+                    onUpdate(self) {
+                      const strokeEl = document.getElementById("pollution-stroke")
+                      if (!strokeEl || !modelRef.current) return
+                      if (self.progress <= 0) {
+                        gsap.set(strokeEl, { clipPath: "inset(0 100% 0 0 round 8px)" })
+                        return
+                      }
+                      if (self.progress >= 1) {
+                        gsap.set(strokeEl, { clipPath: "inset(0 0 0 0 round 8px)" })
+                        return
+                      }
+                      modelRef.current.getWorldPosition(projected.current)
+                      projected.current.project(camera)
+                      const screenVw = (projected.current.x + 1) * 50
+                      const reveal = Math.max(0, Math.min(1, (screenVw - STROKE_START_VW) / STROKE_WIDTH_VW))
+                      const rightPct = 100 - reveal * 100
+                      gsap.set(strokeEl, { clipPath: `inset(0 ${rightPct}% 0 0 round 8px)` })
+                    },
+                },
               })
 
-              // Move model across screen or do something dynamic during the pollution cleaning process
-              // Use fromTo to strictly define the start point matching previous timeline's end
-              tlPollution.fromTo(modelRef.current!.position, 
-                { x: -6 },
-                { x: 6, duration: 4, ease: "none" }
+              tlPollution.fromTo(modelRef.current!.position,
+                { x: -6, y: POLLUTION_MODEL_Y },
+                { x: 6, y: POLLUTION_MODEL_Y, duration: 4, ease: "none" }
               )
               tlPollution.fromTo(modelRef.current!.rotation,
-                { y: Math.PI * 2, z: 0.4 }, 
-                { y: Math.PI * 4, z: -0.4, duration: 4, ease: "none" }, 
+                { y: Math.PI * 2, z: 0.4 },
+                { y: Math.PI * 4, z: -0.4, duration: 4, ease: "none" },
                 "<"
               )
               
@@ -197,34 +128,23 @@ const ModelAndScene = () => {
               tlPollution.to("#smoke-bg", { opacity: 0, duration: 4, ease: "none" }, 1) 
               tlPollution.to("#clean-bg", { opacity: 1, duration: 4, ease: "none" }, 1)
 
-               // Particles (Pollution) Logic
-               if (particlesRef.current) {
-                   const points = particlesRef.current.children[0] as THREE.Points
-                   if(points && points.material) {
-                       const mat = points.material as THREE.PointsMaterial
-                       // Fade particles in as we enter 'smoke' phase
-                       tlPollution.to(mat, { opacity: 0.8, duration: 0.5, ease: "none" }, 0)
-                       // Fade particles out as we enter 'clean' phase
-                       tlPollution.to(mat, { opacity: 0, duration: 0.5, ease: "none" }, 3)
-                   }
-               }
 
 
                // --- 3. Transition to Solution Section ---
-               // User wants model on the RIGHT side for Solution Section.
-               // Content is on the Left.
+               // Model moves to final position and stops when solution section is in view.
+               // end: "top top" = animation finishes when section enters viewport so concrete stays put.
                gsap.timeline({
                    scrollTrigger: {
                        trigger: "#solution-section",
                        start: "top bottom",
-                       end: "center center",
-                       scrub: 0.5, // Reduced scrub
+                       end: "top top", // Complete when section reaches top — concrete then stays in place
+                       scrub: 0.5,
                        immediateRender: false
                   }
                })
-               // Move to Right side (Positive X)
+               // Move to Right side (Positive X); final position is held for rest of scroll
                .fromTo(modelRef.current!.position, 
-                  { x: 6, y: 0, z: 0 }, // Start exactly where tlPollution ended
+                  { x: 6, y: POLLUTION_MODEL_Y, z: 0 }, // Start exactly where tlPollution ended
                   { x: 4.5, y: -0.5, ease: "none" }
                )
                // Scale up even more for impact?
@@ -245,7 +165,7 @@ const ModelAndScene = () => {
 
       return () => ctx.revert(); 
 
-    }, [scene])
+    }, [scene, camera])
   
     // Constant slight rotation for life
     // useFrame((_, delta) => {
@@ -259,21 +179,15 @@ const ModelAndScene = () => {
     // })
   
     return (
-      <>
-        <group ref={modelRef}>
-            <primitive object={scene} />
-            <group ref={particleTargetRef} />
-        </group>
-        <group ref={particlesRef}>
-            <Particles targetRef={particleTargetRef} />
-        </group>
-      </>
+      <group ref={modelRef}>
+          <primitive object={scene} />
+      </group>
     )
   }
 
 export default function Scene3DCanvas() {
   return (
-    <div className="fixed inset-0 pointer-events-none z-0">
+    <div id="scene3d-canvas" className="fixed inset-0 pointer-events-none z-30">
       <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1.5} />

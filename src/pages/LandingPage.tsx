@@ -30,16 +30,26 @@ const LandingPage = () => {
         style={{ backgroundImage: `url(${cleanCity})` }}
       />
 
-      {/* Global 3D Scene - Above background, below interactive content */}
-      <div className="fixed inset-0 z-10 pointer-events-none">
+      {/* White background panel for hero section only — absolute so it scrolls away with the hero,
+           sits at z-5: above bg images (z-0) but below the 3D model (z-10) */}
+      <div
+        className="absolute top-0 left-0 right-0 pointer-events-none"
+        style={{ height: '100vh', zIndex: 5, background: '#ffffff' }}
+      />
+
+      {/* Global 3D Scene - Above background and content */}
+      <div className="fixed inset-0 z-30 pointer-events-none">
         <Scene3DCanvas />
       </div>
 
-      {/* Page Content - Top layer */}
+      {/* Content under the 3D concrete (Hero → Solution) so concrete can pass over stroke */}
       <div className="relative z-20">
         <HeroNew />
         <PollutionSection />
         <SolutionSection />
+      </div>
+      {/* Sections after Solution sit above the canvas so the concrete goes behind and disappears */}
+      <div className="relative z-40">
         <DataSection />
         <ProductGrid />
         <PartnersSection />

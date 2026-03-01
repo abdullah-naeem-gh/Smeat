@@ -6,7 +6,7 @@ const SolutionSection = () => {
   const containerRef = useRef<HTMLDivElement>(null)
 
   return (
-    <section id="solution-section" ref={containerRef} className="relative min-h-screen bg-transparent py-24 overflow-hidden pointer-events-none">
+    <section id="solution-section" ref={containerRef} className="relative min-h-screen bg-white py-24 overflow-hidden pointer-events-none">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
         
         {/* Left Side: Content (Swapped from order-2 to order-1 for lg screens) */}
