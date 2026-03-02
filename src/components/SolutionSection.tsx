@@ -1,77 +1,50 @@
 import { useRef } from 'react'
-import { Zap, Cpu, Leaf } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const SolutionSection = () => {
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const points = [
+    {
+      title: 'Mechanism',
+      text: 'We use non-doped additive materials with a unique crystalline structure that activates under daylight.',
+    },
+    {
+      title: 'The Process',
+      text: 'These additives generate Reactive Oxygen Species (ROS), which break down harmful pollutants such as NOx and VOCs into safe atmospheric compounds.',
+    },
+    {
+      title: 'The Benefit',
+      text: 'No energy input, no ongoing cost. The material works passively—it just needs to be present.',
+    },
+  ]
+
   return (
     <section id="solution-section" ref={containerRef} className="relative min-h-screen bg-white py-24 overflow-hidden pointer-events-none">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
         
-        {/* Left Side: Content (Swapped from order-2 to order-1 for lg screens) */}
         <div className="order-2 lg:order-1 space-y-12 pointer-events-auto">
-          <div className="space-y-4">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-              The SMEAT Solution
-            </h2>
-            <div className="w-20 h-1.5 bg-forest rounded-full" />
-          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+            The SMEAT Solution
+          </h2>
 
           <div className="space-y-8">
-            {/* Mechanism */}
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex gap-6"
-            >
-              <div className="shrink-0 w-12 h-12 rounded-xl bg-[#cbf3e1] flex items-center justify-center text-emerald-700">
-                <Cpu size={24} />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Mechanism</h3>
+            {points.map((point, i) => (
+              <motion.div
+                key={point.title}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
+                className="space-y-2"
+              >
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {point.title}
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  We use non-doped additive materials with a unique crystalline structure.
+                  {point.text}
                 </p>
-              </div>
-            </motion.div>
-
-            {/* The Process */}
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex gap-6"
-            >
-              <div className="shrink-0 w-12 h-12 rounded-xl bg-[#cbf3e1] flex items-center justify-center text-emerald-700">
-                <Zap size={24} />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">The Process</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  These additives create Reactive Oxygen Species (ROS) that break down harmful pollutants like NOx​ and VOCs into safe atmospheric compounds.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* The Benefit */}
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex gap-6"
-            >
-              <div className="shrink-0 w-12 h-12 rounded-xl bg-[#cbf3e1] flex items-center justify-center text-emerald-700">
-                <Leaf size={24} />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">The Benefit</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  No energy required, no hefty costs. It works just by being there.
-                </p>
-              </div>
-            </motion.div>
+              </motion.div>
+            ))}
           </div>
         </div>
 
