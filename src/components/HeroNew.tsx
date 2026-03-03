@@ -1,13 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import logoImg from '../assets/Logo.png'
-
-const NAV_ITEMS = ['Technology', 'Applications', 'Research', 'About', 'Contact']
 
 function HeroNew() {
   const [hoverPrimary, setHoverPrimary] = useState(false)
   const [hoverSecondary, setHoverSecondary] = useState(false)
-  const [hoveredNavIndex, setHoveredNavIndex] = useState<number | null>(null)
 
   return (
     <div
@@ -15,45 +11,6 @@ function HeroNew() {
       className="relative w-full h-screen bg-transparent overflow-hidden"
       style={{ fontFamily: 'Manrope, sans-serif' }}
     >
-      {/* ── Navbar ── */}
-      <nav className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-10 py-6 pointer-events-auto">
-        {/* Logo */}
-        <div className="flex items-center">
-          <img src={logoImg} alt="SMEAT" className="h-7 w-auto object-contain" />
-        </div>
-
-        {/* Nav links — scale-X sweep hover */}
-        <ul className="hidden md:flex items-center gap-10">
-          {NAV_ITEMS.map((item, index) => (
-            <li key={item}>
-              <a
-                href="#"
-                className="relative overflow-hidden rounded-full py-1.5 px-4 block text-[15px] font-normal"
-                style={{ letterSpacing: '0.01em' }}
-                onMouseEnter={() => setHoveredNavIndex(index)}
-                onMouseLeave={() => setHoveredNavIndex(null)}
-              >
-                <motion.div
-                  className="absolute inset-0 bg-[#1a1a2e] rounded-full"
-                  style={{ transformOrigin: 'left center' }}
-                  animate={{ scaleX: hoveredNavIndex === index ? 1 : 0 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                />
-                <motion.span
-                  className="relative z-10 block"
-                  animate={{
-                    color: hoveredNavIndex === index ? '#ffffff' : 'rgb(75 85 99)'
-                  }}
-                  transition={{ duration: 0.2, delay: hoveredNavIndex === index ? 0.1 : 0 }}
-                >
-                  {item}
-                </motion.span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
       {/* ── Left content ── */}
       <div className="absolute inset-0 z-30 flex flex-col justify-center px-10 md:px-16 lg:px-20 pointer-events-none">
         <div className="max-w-[520px] pointer-events-auto">
