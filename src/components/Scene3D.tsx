@@ -31,24 +31,36 @@ const ModelAndScene = () => {
           const center = box.getCenter(new THREE.Vector3())
           scene.position.sub(center)
 
-          const mm = gsap.matchMedia();
+          const mm = gsap.matchMedia()
 
-          mm.add("(min-width: 800px)", () => {
-              
+          mm.add('(min-width: 800px)', () => {
               // --- Initial State (Hero) ---
-              // Massive scale as requested by user
-              const initialScale = 12; // Increased from 3
-              modelRef.current!.scale.set(initialScale, initialScale, initialScale)
-              // Tilted slightly on Z so it appears sideways
-              modelRef.current!.rotation.set(0, 0, -0.4) 
-              // Start on the Right (positive X)
-              modelRef.current!.position.set(3, 0, 0)
+              // Hero pose on the right – this is the "correct" starting state
+              const initialScale = 12
+              const setHeroState = () => {
+                if (!modelRef.current) return
+                modelRef.current.scale.set(initialScale, initialScale, initialScale)
+                modelRef.current.rotation.set(0, 0, -0.4)
+                modelRef.current.position.set(3, 0, 0)
+              }
 
-          
+              // Ensure hero pose on mount
+              setHeroState()
+
+              // When ScrollTrigger recalculates (e.g. on load/resize), re-apply hero pose
+              const onRefresh = () => {
+                if (typeof window !== 'undefined' && window.scrollY === 0) {
+                  setHeroState()
+                }
+              }
+
+              ScrollTrigger.addEventListener('refresh', onRefresh)
+              // Force an initial refresh so everything is in sync
+              ScrollTrigger.refresh()
+
               // --- 1. Transition into Pollution Section ---
               // As we scroll from Hero into Pollution, the model should move/rotate
               // and the background should change to SMOKE.
-              
               const tlHeroToPollution = gsap.timeline({
                 scrollTrigger: {
                     trigger: "#pollution-section",
@@ -61,19 +73,22 @@ const ModelAndScene = () => {
               
               // Move model to the Left side for Pollution section (and up a bit)
               // Use fromTo to ensure we always start from the hero position when reversing back up
-              tlHeroToPollution.fromTo(modelRef.current!.position, 
+              tlHeroToPollution.fromTo(
+                modelRef.current!.position, 
                 { x: 3, y: 0, z: 0 }, 
-                { x: -6, y: POLLUTION_MODEL_Y, z: 0, ease: "none" }
+                { x: -6, y: POLLUTION_MODEL_Y, z: 0, ease: "none", immediateRender: false }
               )
               // Rotate it to look interesting
-              .fromTo(modelRef.current!.rotation,
+              .fromTo(
+                modelRef.current!.rotation,
                 { y: 0, z: -0.4 },
-                { y: Math.PI * 2, z: 0.4, ease: "none" },
+                { y: Math.PI * 2, z: 0.4, ease: "none", immediateRender: false },
                 "<"
               )
-              .fromTo(modelRef.current!.scale,
+              .fromTo(
+                 modelRef.current!.scale,
                  { x: 12, y: 12, z: 12 },
-                 { x: 6, y: 6, z: 6, ease: "none" },
+                 { x: 6, y: 6, z: 6, ease: "none", immediateRender: false },
                  "<"
               )
               
@@ -114,13 +129,15 @@ const ModelAndScene = () => {
                 },
               })
 
-              tlPollution.fromTo(modelRef.current!.position,
-                { x: -6, y: POLLUTION_MODEL_Y },
-                { x: 6, y: POLLUTION_MODEL_Y, duration: 4, ease: "none" }
+              tlPollution.fromTo(
+                modelRef.current!.position,
+                { x: -6, y: POLLUTION_MODEL_Y, z: 0 },
+                { x: 6, y: POLLUTION_MODEL_Y, z: 0, duration: 4, ease: "none", immediateRender: false }
               )
-              tlPollution.fromTo(modelRef.current!.rotation,
+              tlPollution.fromTo(
+                modelRef.current!.rotation,
                 { y: Math.PI * 2, z: 0.4 },
-                { y: Math.PI * 4, z: -0.4, duration: 4, ease: "none" },
+                { y: Math.PI * 4, z: -0.4, duration: 4, ease: "none", immediateRender: false },
                 "<"
               )
               
@@ -143,23 +160,30 @@ const ModelAndScene = () => {
                   }
                })
                // Move to Right side (Positive X); final position is held for rest of scroll
-               .fromTo(modelRef.current!.position, 
+               .fromTo(
+                  modelRef.current!.position, 
                   { x: 6, y: POLLUTION_MODEL_Y, z: 0 }, // Start exactly where tlPollution ended
-                  { x: 4.5, y: -0.5, ease: "none" }
+                  { x: 4.5, y: -0.5, z: 0, ease: "none", immediateRender: false }
                )
                // Scale up even more for impact?
-               .fromTo(modelRef.current!.scale,
+               .fromTo(
+                  modelRef.current!.scale,
                   { x: 6, y: 6, z: 6 }, // Previous scale was 6
-                  { x: 12, y: 12, z: 12, ease: "none" }, 
+                  { x: 12, y: 12, z: 12, ease: "none", immediateRender: false }, 
                   "<"
                )
                // Adjust rotation
-               .fromTo(modelRef.current!.rotation,
+               .fromTo(
+                  modelRef.current!.rotation,
                   { y: Math.PI * 4, z: -0.4 }, // Previous rotation
-                  { z: 0.4, y: Math.PI * 2, ease: "none" }, // New rotation target
+                  { z: 0.4, y: Math.PI * 2, ease: "none", immediateRender: false }, // New rotation target
                   "<"
                )
-
+              
+              // Cleanup for this media query
+              return () => {
+                ScrollTrigger.removeEventListener('refresh', onRefresh)
+              }
           })
       }) // Scope removed
 
