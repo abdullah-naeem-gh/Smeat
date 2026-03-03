@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Award, Globe2, Building } from 'lucide-react'
+import { Award } from 'lucide-react'
 
 const partners = [
   'Hatch 8 (NSTP)',
@@ -11,11 +11,15 @@ const partners = [
 
 const PartnersSection = () => {
   return (
-    <section className="py-24 bg-gray-50 font-montserrat overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <section
+      id="partners-section"
+      className="bg-gray-50 font-montserrat overflow-hidden flex"
+      style={{ height: 'calc(100vh - 88px)' }}
+    >
+      <div className="max-w-7xl mx-auto px-6 py-10 w-full flex flex-col">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
           <div className="space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
               Strategic Partners <br />& Traction
@@ -31,45 +35,28 @@ const PartnersSection = () => {
           </div>
         </div>
 
-        {/* Partners Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+        {/* Partners Rows */}
+        <div className="mt-6 flex-1 flex flex-col border-y border-gray-200 divide-y divide-gray-200">
           {partners.map((partner, i) => (
             <motion.div
               key={partner}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-white aspect-video rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center p-6 grayscale hover:grayscale-0 transition-all cursor-pointer group"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="group relative overflow-hidden cursor-pointer"
             >
-              <span className="text-gray-400 group-hover:text-emerald-700 font-bold text-center transition-colors">
-                {partner}
-              </span>
+              <div className="absolute inset-0 bg-linear-to-r from-emerald-500/0 via-emerald-600/0 to-emerald-500/0 group-hover:from-emerald-500/90 group-hover:via-emerald-600 group-hover:to-emerald-500/90 transition-colors duration-400" />
+              <div className="relative flex items-center justify-between px-4 md:px-10 py-4 md:py-7">
+                <span className="text-2xl md:text-4xl font-semibold tracking-tight text-gray-900 group-hover:text-white transition-colors duration-300">
+                  {partner}
+                </span>
+                <div className="hidden md:flex items-center gap-3 text-xs md:text-sm font-semibold tracking-[0.3em] uppercase text-gray-400 group-hover:text-white/80 transition-colors duration-300">
+                  <span className="h-px w-10 bg-gray-300 group-hover:bg-white/60 transition-colors duration-300" />
+                  <span>Partner</span>
+                </div>
+              </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Global Impact Teaser */}
-        <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="bg-emerald-900 rounded-[2.5rem] p-12 text-white relative overflow-hidden group">
-            <div className="relative z-10 space-y-6">
-              <Globe2 size={48} className="text-mint opacity-80" />
-              <h3 className="text-3xl font-bold">Scaling for the Future</h3>
-              <p className="text-emerald-100/80 leading-relaxed text-lg">
-                With the support of national and international bodies, SMEAT is moving beyond R&D into large-scale urban implementation across Pakistan's major cities.
-              </p>
-            </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-emerald-500/20 transition-colors" />
-          </div>
-
-          <div className="bg-white rounded-[2.5rem] p-12 border border-gray-100 shadow-sm flex flex-col justify-center">
-            <div className="space-y-6">
-              <Building size={48} className="text-emerald-600" />
-              <h3 className="text-3xl font-bold text-gray-900">National Infrastructure</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                Our technology is being vetted for use in Pakistan's primary highway networks and major housing developments to combat the rising urban smog crisis.
-              </p>
-            </div>
-          </div>
         </div>
 
       </div>

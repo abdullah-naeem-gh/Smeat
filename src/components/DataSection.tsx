@@ -22,9 +22,9 @@ const chartData = [
 
 const DataSection = () => {
   return (
-    <section className="py-24 bg-gray-50 overflow-hidden font-montserrat">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <section id="data-section" className="h-screen bg-gray-50 overflow-hidden font-montserrat flex items-center">
+      <div className="max-w-7xl mx-auto px-6 py-24 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center h-full">
           
           {/* Left: Content — single heading only */}
           <div>

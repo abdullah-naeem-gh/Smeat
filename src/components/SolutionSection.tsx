@@ -20,8 +20,8 @@ const SolutionSection = () => {
   ]
 
   return (
-    <section id="solution-section" ref={containerRef} className="relative min-h-screen bg-white py-24 overflow-hidden pointer-events-none">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
+    <section id="solution-section" ref={containerRef} className="relative h-screen bg-white overflow-hidden pointer-events-none flex items-center">
+      <div className="max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
         
         <div className="order-2 lg:order-1 space-y-12 pointer-events-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
@@ -35,14 +35,21 @@ const SolutionSection = () => {
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.15 }}
-                className="space-y-2"
+                className="group relative flex items-start gap-4 rounded-xl bg-white/60 p-5 transition duration-300 ease-out hover:bg-white"
               >
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {point.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {point.text}
-                </p>
+                <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 transition-colors duration-300 group-hover:bg-emerald-500 group-hover:text-white">
+                  <span className="inline-block transform transition-transform duration-300 group-hover:translate-x-0.5">
+                    ➜
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 transition-colors duration-300 group-hover:text-emerald-700">
+                    {point.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {point.text}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>

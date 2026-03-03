@@ -5,7 +5,7 @@ const PollutionSection = () => {
     return (
         <section
             id="pollution-section"
-            className="relative min-h-screen flex items-center justify-center bg-transparent overflow-hidden"
+            className="relative h-screen flex items-center justify-center bg-transparent overflow-hidden"
         >
             <div className="relative z-20 w-full flex flex-col items-center justify-center gap-10 px-6">
 
