@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import HeroNew from '../components/HeroNew'
 import SolutionSection from '../components/SolutionSection'
 import DataSection from '../components/DataSection'
@@ -6,10 +6,11 @@ import ProductGrid from '../components/ProductGrid'
 import PartnersSection from '../components/PartnersSection'
 import Footer from '../components/Footer'
 import PollutionSection from '../components/PollutionSection'
-import Scene3DCanvas from '../components/Scene3D'
 import Header from '../components/Header'
 import cleanCity from '../assets/clean_city.png'
 import smokeCity from '../assets/smoke_city.png'
+
+const Scene3DCanvas = lazy(() => import('../components/Scene3D'))
 
 const HeroSection = ({ scrollY }: { scrollY: number }) => (
   <section
@@ -34,6 +35,7 @@ const HeroSection = ({ scrollY }: { scrollY: number }) => (
 const LandingPage = () => {
   const [scrollY, setScrollY] = useState(0)
   const lastScrollY = useRef(0)
+  const [showScene, setShowScene] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +52,25 @@ const LandingPage = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
+  }, [])
+
+  // Defer loading of heavy 3D / model chunk until after initial paint
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const start = () => setShowScene(true)
+
+    const w = window as Window & typeof globalThis & {
+      requestIdleCallback?: (cb: () => void) => number
+    }
+
+    if (typeof w.requestIdleCallback === 'function') {
+      w.requestIdleCallback(start)
+      return
+    }
+
+    const timeoutId = window.setTimeout(start, 800)
+    return () => window.clearTimeout(timeoutId)
   }, [])
 
   return (
@@ -69,9 +90,13 @@ const LandingPage = () => {
       />
 
       {/* Global 3D Scene - Above background and content */}
-      <div className="fixed inset-0 z-30 pointer-events-none">
-        <Scene3DCanvas />
-      </div>
+      {showScene && (
+        <div className="fixed inset-0 z-30 pointer-events-none">
+          <Suspense fallback={null}>
+            <Scene3DCanvas />
+          </Suspense>
+        </div>
+      )}
 
       {/* Hero (parallax) + scrollable content beneath */}
       <div className="relative w-full min-h-screen">

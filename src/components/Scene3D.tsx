@@ -13,6 +13,9 @@ const STROKE_WIDTH_VW = 64
 // Model vertical offset in pollution section (higher = further up on screen)
 const POLLUTION_MODEL_Y = 0.8
 
+// Proactively start loading the GLB as soon as this module is evaluated
+useGLTF.preload('/concrete.glb')
+
 // --- Model Component ---
 const ModelAndScene = () => {
     const { scene } = useGLTF('/concrete.glb')
